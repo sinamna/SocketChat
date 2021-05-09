@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -69,6 +70,27 @@ func LoadPayload(conn *WebSocketConn) {
 		} else {
 			payload.Conn =*conn
 			payloadChan <- payload
+		}
+	}
+}
+
+func ListenToPayloadChan(){
+	var response WsJsonResponse
+
+	for{
+		payload:= <-payloadChan
+
+		response.Action = "Got here"
+		response.Message = fmt.Sprintf("got some message and action was %s", payload.Action)
+
+		//broadCasting
+		for client := range clients{
+			err := client.WriteJSON(response)
+			if err!=nil{
+				log.Println("error occured in sending response")
+				_ = client.Close()
+				delete(clients,client)
+			}
 		}
 	}
 }
