@@ -5,10 +5,22 @@ import (
 	"log"
 	"net/http"
 )
+
+type WebSocketConn struct{
+	*websocket.Conn
+}
+
 type WsJsonResponse struct{
 	Action string `json:"action"`
 	Message string `json:"message"`
 	MessageType string `json:"message_type"`
+}
+
+type WsPayload struct{
+	Username string `json:"username"`
+	Action string `json:"action"`
+	Message string `json:"message"`
+	Conn WebSocketConn `json:"-"`
 }
 
 var upgrader = websocket.Upgrader{
