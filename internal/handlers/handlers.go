@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/CloudyKit/jet"
+	"github.com/CloudyKit/jet/v6"
 	"log"
 	"net/http"
 )
