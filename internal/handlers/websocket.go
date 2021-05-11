@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"sort"
 )
 
 type WebSocketConn struct {
@@ -86,6 +87,7 @@ func ListenToPayloadChan() {
 		case "username":
 			clients[payload.Conn] = payload.Username
 			userList:=getUserList()
+
 			response.Action = "connected_users"
 			response.ConnectedUsers = userList
 			broadcastToAll(response)
@@ -97,6 +99,7 @@ func getUserList()[]string{
 	for _,val := range clients{
 		userList = append(userList,val)
 	}
+	sort.Strings(userList)
 	return userList
 }
 
