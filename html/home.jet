@@ -5,10 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport">
     <title>Home</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
     <style>
-        .chatbox{
-             outline: 1px solid silver;
+        .chatbox {
+            outline: 1px solid silver;
             min-height: 160px;
             padding: 0.5em;
         }
@@ -18,7 +19,7 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <h1 class="mt-3" >SocketChat Chiz</h1>
+            <h1 class="mt-3">SocketChat Chiz</h1>
             <hr>
         </div>
     </div>
@@ -27,12 +28,12 @@
             <h3>Chat</h3>
 
             <div class="form-group">
-                <label for="username" >Username:</label>
+                <label for="username">Username:</label>
                 <input type="text" class="form-control" name="username" id="username" autocomplete="off">
             </div>
 
             <div class="form-group">
-                <label for="message" >Message:</label>
+                <label for="message">Message:</label>
                 <input type="text" class="form-control" name="message" id="message" autocomplete="off">
             </div>
             <hr>
@@ -53,19 +54,22 @@
     </div>
 </div>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8"
+        crossorigin="anonymous"></script>
+<script src="/static/reconnecting-websocket.min.js"></script>
 <script>
     let socket = null;
 
-    document.addEventListener("DOMContentLoaded", function(){
-        socket = new WebSocket("ws://127.0.0.1:8080/ws")
+    document.addEventListener("DOMContentLoaded", function () {
+        socket = new ReconnectingWebSocket("ws://127.0.0.1:8080/ws",null, {debug: true, reconnectInterval: 3000})
         let userField = document.getElementById("username")
         let message = document.getElementById("message")
         socket.onopen = () => {
             console.log("successfully connected")
         }
 
-        socket.onclose= ()=>{
+        socket.onclose = () => {
             console.log("connection closed.")
         }
 
@@ -73,15 +77,15 @@
             console.log("an error occurred.")
         }
         let chatBox = document.getElementById("output")
-        socket.onmessage = msg =>{
+        socket.onmessage = msg => {
             let parsedData = JSON.parse(msg.data);
-            switch (parsedData.action){
+            switch (parsedData.action) {
                 case "connected_users":
                     let ul = document.getElementById("online_users")
-                    while(ul.firstChild) ul.removeChild(ul.firstChild)
+                    while (ul.firstChild) ul.removeChild(ul.firstChild)
 
-                    if(parsedData.connected_users.length>0 ){
-                        parsedData.connected_users.forEach(function(item){
+                    if (parsedData.connected_users.length > 0) {
+                        parsedData.connected_users.forEach(function (item) {
                             let li = document.createElement("li")
                             li.appendChild(document.createTextNode(item))
                             ul.appendChild(li)
@@ -95,29 +99,29 @@
         }
 
 
-        userField.addEventListener("change",function(){
-            let dataToSend={};
-            dataToSend["action"]= "username";
+        userField.addEventListener("change", function () {
+            let dataToSend = {};
+            dataToSend["action"] = "username";
             dataToSend["username"] = this.value;
             socket.send(JSON.stringify(dataToSend));
         });
 
         //reloading page without restarting application causes an error in displaying online users
-        window.onbeforeunload = function(){
+        window.onbeforeunload = function () {
             console.log("leaving the page")
             let dataToSend = {};
             dataToSend["action"] = "left";
             socket.send(JSON.stringify(dataToSend));
         }
 
-        message.addEventListener("keydown",function(event){
-            if(event.code == "Enter"){
-                if(!socket){
+        message.addEventListener("keydown", function (event) {
+            if (event.code == "Enter") {
+                if (!socket) {
                     console.log("no connection baby")
                     return false
                 }
 
-                if ((userField.value ==="")||(message.value === "")){
+                if ((userField.value === "") || (message.value === "")) {
                     alert("fill all fields.")
                     return false;
                 }
@@ -128,16 +132,17 @@
         })
 
 
-        document.getElementById("sendBtn").addEventListener("click", function(){
-            if ((userField.value ==="")||(message.value === "")){
+        document.getElementById("sendBtn").addEventListener("click", function () {
+            if ((userField.value === "") || (message.value === "")) {
                 alert("fill all fields.")
                 return false;
-            }else{
+            } else {
                 sendMessage()
             }
         });
     });
-    function sendMessage(){
+
+    function sendMessage() {
         let dataToSend = {};
         dataToSend["action"] = "broadcast"
         dataToSend["username"] = document.getElementById("username").value;
