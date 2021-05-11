@@ -73,6 +73,14 @@
             let parsedData = JSON.parse(msg.data);
             console.log(parsedData)
         }
+
+        let usernameInput = document.getElementById("username")
+        usernameInput.addEventListener("change",()=>{
+            let dataToSend={};
+            dataToSend["action"]="username";
+            dataToSend["username"] = this.value;
+            socket.send(JSON.stringify(dataToSend));
+        });
     })
 </script>
 </html>
