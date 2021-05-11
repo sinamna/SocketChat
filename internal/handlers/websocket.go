@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -25,7 +24,7 @@ type WsPayload struct {
 }
 
 var payloadChan = make(chan WsPayload)
-var clients = make(map[WebSocketConn]bool)
+var clients = make(map[WebSocketConn]string)
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -44,7 +43,7 @@ func WsEndpoint(w http.ResponseWriter, r *http.Request) {
 	res.Message = "connection successfully upgraded"
 
 	wsConn := WebSocketConn{Conn: conn}
-	clients[wsConn] = true
+	clients[wsConn] = ""
 
 	err = conn.WriteJSON(res)
 
@@ -68,29 +67,39 @@ func LoadPayload(conn *WebSocketConn) {
 		if err != nil {
 			//no payload
 		} else {
-			payload.Conn =*conn
+			payload.Conn = *conn
 			payloadChan <- payload
 		}
 	}
 }
 
-func ListenToPayloadChan(){
+func ListenToPayloadChan() {
 	var response WsJsonResponse
 
-	for{
-		payload:= <-payloadChan
+	for {
+		payload := <-payloadChan
 
-		response.Action = "Got here"
-		response.Message = fmt.Sprintf("got some message and action was %s", payload.Action)
-
+		//response.Action = "Got here"
+		//response.Message = fmt.Sprintf("got some message and action was %s", payload.Action)
+		switch payload.Action {
+		case "username":
+			clients[payload.Conn] = payload.Username
+		}
 		//broadCasting
-		for client := range clients{
+		for client := range clients {
 			err := client.WriteJSON(response)
-			if err!=nil{
+			if err != nil {
 				log.Println("error occured in sending response")
 				_ = client.Close()
-				delete(clients,client)
+				delete(clients, client)
 			}
 		}
 	}
+}
+func getUserList()[]string{
+	var userList []string
+	for _,val := range clients{
+		userList = append(userList,val)
+	}
+	return userList
 }
