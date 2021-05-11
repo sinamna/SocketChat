@@ -59,7 +59,8 @@
 
     document.addEventListener("DOMContentLoaded", function(){
         socket = new WebSocket("ws://127.0.0.1:8080/ws")
-
+        let userField = document.getElementById("username")
+        let message = document.getElementById("message")
         socket.onopen = () => {
             console.log("successfully connected")
         }
@@ -93,8 +94,8 @@
             }
         }
 
-        let usernameInput = document.getElementById("username")
-        usernameInput.addEventListener("change",function(){
+
+        userField.addEventListener("change",function(){
             let dataToSend={};
             dataToSend["action"]= "username";
             dataToSend["username"] = this.value;
@@ -109,7 +110,7 @@
             socket.send(JSON.stringify(dataToSend));
         }
 
-        document.getElementById("message").addEventListener("keydown",function(event){
+        message.addEventListener("keydown",function(event){
             if(event.code == "Enter"){
                 if(!socket){
                     console.log("no connection baby")
@@ -126,8 +127,7 @@
             }
         })
 
-        let userField = document.getElementById("username")
-        let message = document.getElementById("message")
+
         document.getElementById("sendBtn").addEventListener("click", function(){
             if ((userField.value ==="")||(message.value === "")){
                 alert("fill all fields.")
