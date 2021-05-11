@@ -71,10 +71,9 @@
         socket.onerror = error => {
             console.log("an error occurred.")
         }
-
+        let chatBox = document.getElementById("output")
         socket.onmessage = msg =>{
             let parsedData = JSON.parse(msg.data);
-            console.log(parsedData.connected_users)
             switch (parsedData.action){
                 case "connected_users":
                     let ul = document.getElementById("online_users")
@@ -87,7 +86,10 @@
                             ul.appendChild(li)
                         })
                     }
-                    break
+                    break;
+                case "broadcast":
+                    chatBox.innerHTML = chatBox.innerHTML + parsedData.message + "<br>";
+                    break;
             }
         }
 
@@ -113,13 +115,28 @@
                     console.log("no connection baby")
                     return false
                 }
+
+                if ((userField.value ==="")||(message.value === "")){
+                    alert("fill all fields.")
+                    return false;
+                }
                 event.preventDefault()
                 event.stopPropagation()
-
                 sendMessage()
             }
         })
-    })
+
+        let userField = document.getElementById("username")
+        let message = document.getElementById("message")
+        document.getElementById("sendBtn").addEventListener("click", function(){
+            if ((userField.value ==="")||(message.value === "")){
+                alert("fill all fields.")
+                return false;
+            }else{
+                sendMessage()
+            }
+        });
+    });
     function sendMessage(){
         let dataToSend = {};
         dataToSend["action"] = "broadcast"
