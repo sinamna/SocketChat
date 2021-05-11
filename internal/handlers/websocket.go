@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -97,6 +98,11 @@ func ListenToPayloadChan() {
 			response.Action = "connected_users"
 			userList := getUserList()
 			response.ConnectedUsers = userList
+			broadcastToAll(response)
+
+		case "broadcast":
+			response.Action = "broadcast"
+			response.Message = fmt.Sprintf("<strong>%s</strong>: %s",payload.Username,payload.Message)
 			broadcastToAll(response)
 		}
 	}
