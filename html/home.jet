@@ -36,6 +36,10 @@
                 <input type="text" class="form-control" name="message" id="message" autocomplete="off">
             </div>
             <hr>
+
+            <a href="javascript:void(0);" class="btn btn-outline-secondary" id="sendBtn">Send Message</a>
+
+            <hr>
             <input type="hidden" name="action" id="action">
             <div id="output" class="chatbox">
 
@@ -102,6 +106,28 @@
             dataToSend["action"] = "left";
             socket.send(JSON.stringify(dataToSend));
         }
+
+        document.getElementById("message").addEventListener("keydown",function(event){
+            if(event.code == "Enter"){
+                if(!socket){
+                    console.log("no connection baby")
+                    return false
+                }
+                event.preventDefault()
+                event.stopPropagation()
+
+                sendMessage()
+            }
+        })
     })
+    function sendMessage(){
+        let dataToSend = {};
+        dataToSend["action"] = "broadcast"
+        dataToSend["username"] = document.getElementById("username").value;
+        dataToSend["message"] = document.getElementById("message").value;
+        socket.send(JSON.stringify(dataToSend));
+        document.getElementById("message").value = "";
+
+    }
 </script>
 </html>
