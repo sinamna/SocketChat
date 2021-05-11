@@ -40,8 +40,11 @@
 
             <a href="javascript:void(0);" class="btn btn-outline-secondary" id="sendBtn">Send Message</a>
 
-            <hr>
+
             <input type="hidden" name="action" id="action">
+            <div class="mt-2 fload-end" id="status">
+
+            </div>
             <div id="output" class="chatbox">
 
             </div>
@@ -60,17 +63,29 @@
 <script src="/static/reconnecting-websocket.min.js"></script>
 <script>
     let socket = null;
-
+    window.onbeforeunload = function () {
+        console.log("leaving the page")
+        let dataToSend = {};
+        dataToSend["action"] = "left";
+        socket.send(JSON.stringify(dataToSend));
+    }
     document.addEventListener("DOMContentLoaded", function () {
         socket = new ReconnectingWebSocket("ws://127.0.0.1:8080/ws",null, {debug: true, reconnectInterval: 3000})
         let userField = document.getElementById("username")
         let message = document.getElementById("message")
+
+        const offlineBadge = `<span class="badge bg-danger">Not Connected</span>`
+        const onlineBadge = `<span class="badge bg-success">Connected</span>`
+        let statusDiv = document.getElementById("status")
         socket.onopen = () => {
             console.log("successfully connected")
+            statusDiv.innerHTML = onlineBadge;
         }
 
         socket.onclose = () => {
             console.log("connection closed.")
+            statusDiv.innerHTML = offlineBadge;
+
         }
 
         socket.onerror = error => {
@@ -107,12 +122,7 @@
         });
 
         //reloading page without restarting application causes an error in displaying online users
-        window.onbeforeunload = function () {
-            console.log("leaving the page")
-            let dataToSend = {};
-            dataToSend["action"] = "left";
-            socket.send(JSON.stringify(dataToSend));
-        }
+
 
         message.addEventListener("keydown", function (event) {
             if (event.code == "Enter") {
