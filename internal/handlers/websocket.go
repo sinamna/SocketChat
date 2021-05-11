@@ -14,6 +14,7 @@ type WsJsonResponse struct {
 	Action      string `json:"action"`
 	Message     string `json:"message"`
 	MessageType string `json:"message_type"`
+	ConnectedUsers []string `json:"connected_users"`
 }
 
 type WsPayload struct {
@@ -84,6 +85,10 @@ func ListenToPayloadChan() {
 		switch payload.Action {
 		case "username":
 			clients[payload.Conn] = payload.Username
+			userList:=getUserList()
+			response.Action = "connected_users"
+			response.ConnectedUsers = userList
+			broadcastToAll(response)
 		}
 	}
 }
