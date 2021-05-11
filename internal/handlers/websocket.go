@@ -85,15 +85,6 @@ func ListenToPayloadChan() {
 		case "username":
 			clients[payload.Conn] = payload.Username
 		}
-		//broadCasting
-		for client := range clients {
-			err := client.WriteJSON(response)
-			if err != nil {
-				log.Println("error occured in sending response")
-				_ = client.Close()
-				delete(clients, client)
-			}
-		}
 	}
 }
 func getUserList()[]string{
@@ -102,4 +93,15 @@ func getUserList()[]string{
 		userList = append(userList,val)
 	}
 	return userList
+}
+
+func broadcastToAll(response WsJsonResponse){
+	for client := range clients {
+		err := client.WriteJSON(response)
+		if err != nil {
+			log.Println("error occured in sending response")
+			_ = client.Close()
+			delete(clients, client)
+		}
+	}
 }
