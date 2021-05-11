@@ -104,7 +104,9 @@ func ListenToPayloadChan() {
 func getUserList()[]string{
 	var userList []string
 	for _,val := range clients{
-		userList = append(userList,val)
+		if val!=""{
+			userList = append(userList,val)
+		}
 	}
 	sort.Strings(userList)
 	return userList
