@@ -91,6 +91,13 @@ func ListenToPayloadChan() {
 			response.Action = "connected_users"
 			response.ConnectedUsers = userList
 			broadcastToAll(response)
+		case "left":
+			delete(clients, payload.Conn)
+
+			response.Action = "connected_users"
+			userList := getUserList()
+			response.ConnectedUsers = userList
+			broadcastToAll(response)
 		}
 	}
 }
