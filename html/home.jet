@@ -94,6 +94,14 @@
             dataToSend["username"] = this.value;
             socket.send(JSON.stringify(dataToSend));
         });
+
+        //reloading page without restarting application causes an error in displaying online users
+        window.onbeforeunload = function(){
+            console.log("leaving the page")
+            let dataToSend = {};
+            dataToSend["action"] = "left";
+            socket.send(JSON.stringify(dataToSend));
+        }
     })
 </script>
 </html>
